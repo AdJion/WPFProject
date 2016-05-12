@@ -1,0 +1,78 @@
+C# 类中继承接口的属性
+
+在开发中面对接口编程，有时需要将属性放到接口中，但是在类中又要如何去继承接口的属性呢？
+
+代码如下：
+
+public interface IA
+{
+        int count{get;set;}
+        void test();
+}
+
+public class A:IA
+{
+        public void test()
+        {
+             //TODO...
+         }
+}
+这时候，如何进行编译，将会提示错误： 不实现接口 “IheritInterfaceProperty.IA.count
+
+
+
+看提示就应该知道，是IA中的属性count没有实现。因为属性在本质上也是方法，即get和set方法，只是属性看起来像是字段一样。现在对count进行实现，代码如下
+
+  public class A : IA
+    {  
+        #region count normal Property
+        private int count_;
+        public int count
+        {
+            get
+            {
+                return count_;
+            }
+            set
+            {
+                count_ = value;
+            }
+        }
+        #endregion
+
+        public void test()
+        {
+            //TODO...
+        }
+    }
+这时再进行编译就可以通过了。
+
+这里说一个小技巧：在类继承接口时，可以在接口的后面按下CTRL+.，然后就可以快速实现接口中的各个项了(包括方法和属性)。只是需要注意的是，对于方法和属性都会有这样的代码“throw new NotImplementedException();”，这就需要对其进行实现。
+
+
+
+那是否可以在接口中去增加一个公共字段，让继承的也可以访问呢？比如这样写：
+
+public interface IA
+    {
+        public int sum;
+        int count { get; set; }
+        void test();
+    }
+编译报错：接口不能包含字段
+
+
+
+接口中不能包含字段，所以接口中不能直接定义字段。下面是MSDN所说的(具体可以参见这个链接http://msdn.microsoft.com/zh-cn/library/vstudio/ms173156.aspx)：
+
+接口具有下列属性：
+
+接口与抽象基类。 实现接口的任何选件类或结构必须实现其所有成员的链接。
+
+接口不能直接实例化。 其成员通过实现接口的任何选件类或结构实现。
+
+接口可以包含事件、索引器、方法和属性。
+
+接口不包含方法的实现。
+
+选件类或结构可以实现多个接口。 选件类可以继承基类并实现一个或多个接口。
